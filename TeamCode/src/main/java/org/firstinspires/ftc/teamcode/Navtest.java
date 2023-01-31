@@ -33,7 +33,9 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     private Servo collectorDriveS;
 
     static final float DPAD_POWER_LVL = 1.0F;
-
+    int armRotationPos = 30;
+    int armExtendPos = 30;
+    int armTiltPos = 30;
     int robotX = 6;
     int robotY = 2;
     int startPos = 1;
@@ -43,7 +45,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     int differenceY;
     int parkingPosX = 1;
     int parkingPosY = 1;
-    double armPower = .30;
+    double armPower = .20;
 
     //private int detected = 1;
     int h = 0;
@@ -439,6 +441,9 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">>", "Vuforia initialized, press start to continue...");
         telemetry.update();
+        telemetry.addData("turntable", armRotationM.getCurrentPosition());
+        telemetry.addData("tilt", tiltM.getCurrentPosition());
+        telemetry.addData("extend", liftM.getCurrentPosition());
         ResetValues();
         if (gamepad1.a) {
             StartingPosition();
@@ -545,17 +550,61 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
      */
 
     private void RotateArm(int direction) {
-        armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
-        armRotationM.setPower(armPower * direction);
-        telemetry.addData("ArmPosition", armRotationM.getCurrentPosition());
+        int limitL = 100;
+        int limitR = -100;
+        if (armRotationPos > limitR && direction == -1 || armRotationPos < limitL && direction == 1) {
+            armRotationM.setPower(0);
+        } else {
+            armRotationPos = armRotationPos - 1 * direction;
+            armRotationM.setTargetPosition(armRotationPos);
+            armRotationM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
+            armRotationM.setPower(0.3);
+        }
+
+        //armRotationM.setPower(armPower * direction);
+
+        telemetry.addData("rotationPosition", armRotationM.getCurrentPosition());
+        telemetry.update();
     }
     private void ExtendArm(int direction) {
-        liftM.setDirection(DcMotorSimple.Direction.FORWARD);
-        liftM.setPower(armPower * direction);
+        int limitL = 100;
+        int limitR = -100;
+        if (armExtendPos > limitR && direction == -1 || armExtendPos< limitL && direction == 1) {
+            liftM.setPower(0);
+        } else {
+            armExtendPos = armExtendPos - 1 * direction;
+            liftM.setTargetPosition(armExtendPos);
+            liftM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftM.setDirection(DcMotorSimple.Direction.FORWARD);
+            liftM.setPower(0.3);
+        }
+        telemetry.addData("ExtendPosition", liftM.getCurrentPosition());
+        telemetry.update();
     }
     private void TiltArm(int direction) {
-        tiltM.setDirection(DcMotorSimple.Direction.FORWARD);
-        tiltM.setPower(armPower * direction);
+        int limitL = 100;
+        int limitR = -100;
+        if (armTiltPos > limitR && direction == -1 || armTiltPos < limitL && direction == 1) {
+            tiltM.setPower(0);
+        } else {
+            armTiltPos = armTiltPos - 1 * direction;
+            tiltM.setTargetPosition(armTiltPos);
+            tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            tiltM.setDirection(DcMotorSimple.Direction.FORWARD);
+            tiltM.setPower(0.3);
+        }
+        telemetry.addData("TiltPosition", tiltM.getCurrentPosition());
+        telemetry.update();
+    }
+    private void CollectorAngle (double direction) {
+        collectorTiltS.setPosition(direction);
+        collectorTiltS.setDirection(Servo.Direction.FORWARD);
+
+    }
+    private void Collector (double direction) {
+        collectorDriveS.setPosition(direction);
+        collectorDriveS.setDirection(Servo.Direction.FORWARD);
     }
 
     private void GoStraight() {
@@ -683,15 +732,26 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             ExtendArm(1);
         } else if (gamepad1.right_stick_button) {
             ExtendArm(-1);
+        } else if (gamepad1.left_bumper) {
+            Collector(0);
+        } else if (gamepad1.right_bumper) {
+            Collector(1);
+        } else if (gamepad1.right_trigger > 0) {
+            CollectorAngle(1);
+        } else if (gamepad1.left_trigger > 0) {
+            CollectorAngle(0);
         }
-        /*else {
-            Set_Power_Values(
-                    gamepad1.left_stick_x,
+        else {
+            armRotationM.setPower(0);
+            tiltM.setPower(0);
+            liftM.setPower(0);
+            Set_Power_Values(0, 0, gamepad1.right_stick_x, gamepad2.right_stick_y, Current_Power_Lvl);
+                    /*gamepad1.left_stick_x,
                     gamepad1.left_stick_y,
                     gamepad1.right_stick_x,
                     gamepad1.right_stick_y,
-                    Current_Power_Lvl
-            );
-        }*/
+                    Current_Power_Lvl*/
+
+        }
     }
 }
