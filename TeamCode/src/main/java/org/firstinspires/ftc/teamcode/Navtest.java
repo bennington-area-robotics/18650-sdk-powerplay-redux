@@ -34,7 +34,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     private Servo collectorTiltS;
     private Servo collectorDriveS;
 
-    static final float DPAD_POWER_LVL = 0F;
+    static final float DPAD_POWER_LVL = 1.0F;
     int armRotationPos ;
     int armExtendPos ;
     int armTiltPos;
@@ -47,13 +47,15 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     int differenceY;
     int parkingPosX = 1;
     int parkingPosY = 1;
-    double armPower = .20;
+    double armPower = 6;
+
+    boolean used = false;
 
     //private int detected = 1;
-    int h = 0;
-    private boolean MoveToSpot = false;
+    //int h = 0;
+    //private boolean MoveToSpot = false;
 
-    double Current_Power_Lvl = 0;
+    double Current_Power_Lvl = 0.7;
 
     /** tile size in inches */
     final private int tileSizeForward = 800;
@@ -90,7 +92,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
 
     }
     private void RunToSignal (int signal) {
-        MoveToSpot = true;
+        //MoveToSpot = true;
         if (signal == 1) {
             Move_F_B(1);
             Move_L_R(-1 * tileSizeSideways);
@@ -103,7 +105,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             Move_F_B(1);
             Move_F_B(1.5 * tileSizeForward);
         } else {
-            MoveToSpot = false;
+            //MoveToSpot = false;
             return;
         }
     }
@@ -135,17 +137,6 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         RFront.setPower(Current_Power_Lvl);
         RRear.setPower(Current_Power_Lvl);
         LRear.setPower(Current_Power_Lvl);
-    }
-    private void RunToPosArm() {
-        //liftM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //armRotationM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //tiltM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //collectorTiltS.setPosition()
-        //collectorDriveS.setMode(Servo.RunMode.RUN_TO_POSITION);
-        //liftM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //armRotationM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
     }
     private void Move_L_R(double dist_L_R) {
         LFront.setTargetPosition((int) dist_L_R);
@@ -393,9 +384,37 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     }
 
     private void SetPosition () {
-        tiltM.setTargetPosition(75);
-        RunToPosArm();
+        //tiltM.setTargetPosition(75);
 
+
+
+    }
+    private void Initialize_Motors_Servos() {
+        LFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        LRear.setDirection(DcMotorSimple.Direction.FORWARD);
+        RFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        RRear.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        LFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        tiltM.setDirection(DcMotorSimple.Direction.FORWARD);
+        tiltM.setTargetPosition(tiltM.getCurrentPosition());
+        tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        tiltM.setPower(0.75);
+        liftM.setDirection(DcMotorSimple.Direction.FORWARD);
+        liftM.setTargetPosition(liftM.getCurrentPosition());
+        liftM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftM.setPower(0.7);
+        armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
+        armRotationM.setTargetPosition(armRotationM.getCurrentPosition());
+        armRotationM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRotationM.setPower(0.7);
+
+        collectorDriveS.setPosition(1);
+        collectorTiltS.setPosition(0);
 
     }
     @Override
@@ -415,23 +434,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         collectorTiltS = hardwareMap.get(Servo.class, "collectorTiltS");
         collectorDriveS = hardwareMap.get(Servo.class, "collectorDriveS");
 
-        LFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        LRear.setDirection(DcMotorSimple.Direction.FORWARD);
-        RFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        RRear.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        LFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
-        liftM.setDirection(DcMotorSimple.Direction.FORWARD);
-        tiltM.setDirection(DcMotorSimple.Direction.FORWARD);
-        collectorDriveS.setDirection(Servo.Direction.FORWARD);
-        collectorTiltS.setDirection(Servo.Direction.FORWARD);
-        //tiltM.setPower(1);
-
+        Initialize_Motors_Servos();
 
         // Initialize Vuforia
         telemetry.addData("Status", "Initializing Vuforia. Please wait...");
@@ -473,9 +476,6 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
                 // (Note we only process first visible target).
 
                 Process_Movement();
-                tiltM.setTargetPosition(armTiltPos);
-                tiltM.setPower(1);
-                //tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                 if (isTargetVisible("Red Audience Wall")) {
                     processTarget();
@@ -490,7 +490,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
                     processTarget();
 
                 } else {
-                    //telemetry.addData("No Targets Detected", "Targets are not visible.");
+                    telemetry.addData("No Targets Detected", "Targets are not visible.");
 
                 }
                 telemetry.update();
@@ -568,88 +568,21 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     /**
      * Movement Functions
      */
-    private void Wait_for_Arm_Motor_to_Move() {
-        while (!Number_Within_Range_(liftM.getCurrentPosition(), liftM.getTargetPosition() - ((DcMotorEx) liftM).getTargetPositionTolerance(), liftM.getTargetPosition() + ((DcMotorEx) liftM).getTargetPositionTolerance())) {
-            //Update_Telemetry();
-            if (Is_opmode_stopped_()) {
-                break;
-            }
-        }
-    }
-
-    private void RotateArm(int direction) {
-        telemetry.clear();
-        int limitL = 100;
-        int limitR = -100;
-        /*if (armRotationPos > limitR && direction == -1 || armRotationPos < limitL && direction == 1) {
-            armRotationM.setPower(0);
-        } else {*/
-            armRotationPos = armRotationPos + 1 * direction;
-            armRotationM.setTargetPosition(armRotationPos);
-            armRotationM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
-            armRotationM.setPower(0.3);
-            telemetry.addData("rotationPosition", armRotationM.getCurrentPosition());
-            telemetry.addData("targetPos", armRotationPos);
-            telemetry.update();
-        //}
-
-        //armRotationM.setPower(armPower * direction);
-
-
-    }
-    private void ExtendArm(int direction) {
-        telemetry.clear();
-        int limitL = 100;
-        int limitR = -100;
-        /*if (armExtendPos > limitR && direction == -1 || armExtendPos< limitL && direction == 1) {
-            liftM.setPower(0);
-        } else {*/
-            armExtendPos = armExtendPos + 1 * direction;
-            liftM.setTargetPosition(armExtendPos);
-            liftM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //liftM.setDirection(DcMotorSimple.Direction.FORWARD);
-            liftM.setPower(0.3);
-            //Wait_for_Arm_Motor_to_Move();
-            telemetry.addData("ExtendPosition", liftM.getCurrentPosition());
-            telemetry.addData("targetPos", armExtendPos);
-            telemetry.update();
-        //}
-
-    }
-    private void TiltArm(int direction) {
-        telemetry.clear();
-        int limitL = 100;
-        int limitR = -100;
-        /*if (armTiltPos > limitR && direction == -1 || armTiltPos < limitL && direction == 1) {
-            tiltM.setPower(0);
-        } else {*/
-            armTiltPos = armTiltPos + 1 * direction;
-            //tiltM.setTargetPosition(armTiltPos);
-            //tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //tiltM.setDirection(DcMotorSimple.Direction.FORWARD);
-            //tiltM.setPower(1);
-            telemetry.addData("TiltPosition", tiltM.getCurrentPosition());
-            telemetry.addData("targetPos", armTiltPos);
-            telemetry.update();
-        //}
-
-    }
     private void CollectorAngle (double direction) {
         collectorTiltS.setPosition(direction);
-        //collectorTiltS.setDirection(Servo.Direction.REVERSE);
+
 
     }
-    boolean used = false;
-    private void Collector (/*double direction*/) {
+
+    private void Collector () {
 
         if (used == false) {
 
-            collectorDriveS.setPosition(1);
+            collectorDriveS.setPosition(0);
             //collectorDriveS.setDirection(Servo.Direction.FORWARD);
             used = true;
         } else {
-            collectorDriveS.setPosition(0);
+            collectorDriveS.setPosition(1);
             //collectorDriveS.setDirection(Servo.Direction.REVERSE);
             used = false;
         }
@@ -763,38 +696,8 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             Move_L_R(-1 * tileSizeSideways);
         } else if (gamepad1.b) {
             Move_L_R(tileSizeSideways);
-        } /*else if (gamepad1.right_bumper) {
-            Detection();
-            //RunToSignal();
-        } else if (gamepad1.left_bumper) {
-            MoveToTargetPosition();
-        } */ else if (gamepad1.left_stick_x > 0.4) {
-            RotateArm(1);
-        } else if (gamepad1.left_stick_x < -0.4) {
-            RotateArm(-1);
-        } else if (gamepad1.left_stick_y > 0.4) {
-            TiltArm(1);
-        } else if (gamepad1.left_stick_y < -0.4) {
-            TiltArm(-1);
-        } else if (gamepad1.left_stick_button) {
-            Collector();
-            ExtendArm(1);
-        } else if (gamepad1.right_stick_button) {
-            //ExtendArm(-1);
-        }  else if (gamepad1.left_bumper) {
-            //Collector(0);
-            ExtendArm(1);
-        } else if (gamepad1.right_bumper) {
-            ExtendArm(-1);
-        } else if (gamepad1.right_trigger > 0) {
-            CollectorAngle(1);
-        } else if (gamepad1.left_trigger > 0) {
-            CollectorAngle(0);
-        }
-        else {
-            armRotationM.setPower(0);
-            tiltM.setPower(0);
-            liftM.setPower(0);
+        } else {
+
             Set_Power_Values(0, 0, gamepad1.right_stick_x, gamepad2.right_stick_y, Current_Power_Lvl);
                     /*gamepad1.left_stick_x,
                     gamepad1.left_stick_y,
@@ -802,6 +705,35 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
                     gamepad1.right_stick_y,
                     Current_Power_Lvl*/
 
+        }/*else if (gamepad1.right_bumper) {
+            Detection();
+            //RunToSignal();
+        } else if (gamepad1.left_bumper) {
+            MoveToTargetPosition();
+        } */
+
+        if (gamepad1.left_stick_button) {
+            Collector();
+        }
+        if (gamepad1.right_bumper) {
+            CollectorAngle(1);
+        } else if (gamepad1.left_bumper) {
+            CollectorAngle(0);
+        }
+        if (gamepad1.left_trigger != 0 || gamepad1.right_trigger != 0) {
+            liftM.setTargetPosition((int) (liftM.getTargetPosition() + (gamepad1.right_trigger - gamepad1.left_trigger) * armPower));
+        } else {
+            liftM.setTargetPosition(liftM.getCurrentPosition());
+        }
+        if (Math.abs(gamepad1.left_stick_y) > 0.4) {
+            tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+        } else {
+            tiltM.setTargetPosition(tiltM.getCurrentPosition());
+        }
+        if (Math.abs(gamepad1.left_stick_x) > 0.4) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - gamepad1.left_stick_x * armPower/2));
+        } else {
+            armRotationM.setTargetPosition(armRotationM.getCurrentPosition());
         }
     }
 }
