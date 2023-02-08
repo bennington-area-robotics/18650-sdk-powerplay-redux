@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.ams.AMSColorSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -21,8 +22,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.Tfod;
 import java.security.cert.Extension;
 import java.util.List;
 
-@TeleOp(name = "driverControlMode")
-public class Navtest extends LinearOpMode { //asdfgndsadfgn
+@Autonomous(name = "autonomousMode")
+public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
 
     private DcMotor LFront;
     private DcMotor RFront;
@@ -142,7 +143,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         LRear.setPower(Current_Power_Lvl);
     }
     private void Move_L_R(double dist_L_R) {
-        LFront.setTargetPosition((int) -dist_L_R);
+        LFront.setTargetPosition((int)-dist_L_R);
         RFront.setTargetPosition((int) -dist_L_R);
         LRear.setTargetPosition((int) -dist_L_R);
         RRear.setTargetPosition((int) dist_L_R);
@@ -267,25 +268,25 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
 
     }
     /**private void MoveForSignal () {
-        Detection();
-        if (h == 0) {
-            Move_L_R(1);
-            h++;
-            Detection();
-        } else {
-            Move_L_R(-1);
-            h--;
-        }
-    }
-    private void ScanForSignal () {
-        while (true) {
-            if (MoveToSpot == false) {
-                MoveForSignal();
-            } else {
-                return;
-            }
-        }
-    }*/
+     Detection();
+     if (h == 0) {
+     Move_L_R(1);
+     h++;
+     Detection();
+     } else {
+     Move_L_R(-1);
+     h--;
+     }
+     }
+     private void ScanForSignal () {
+     while (true) {
+     if (MoveToSpot == false) {
+     MoveForSignal();
+     } else {
+     return;
+     }
+     }
+     }*/
 
     /**
      * Initialization for target locations
@@ -439,7 +440,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         collectorTiltS = hardwareMap.get(Servo.class, "collectorTiltS");
         collectorDriveS = hardwareMap.get(Servo.class, "collectorDriveS");
 
-        Initialize_Motors_Servos();
+        //Initialize_Motors_Servos();
 
         // Initialize Vuforia
         telemetry.addData("Status", "Initializing Vuforia. Please wait...");
@@ -470,6 +471,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         }
         waitForStart();
         if (opModeIsActive()) {
+            Detection();
             armRotationPos = armRotationM.getCurrentPosition();
             armExtendPos = liftM.getCurrentPosition();
             armTiltPos = tiltM.getCurrentPosition();
@@ -590,11 +592,11 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         if (used == false) {
 
             collectorDriveS.setPosition(0);
-          //  collectorDriveS.setDirection(Servo.Direction.FORWARD);
+            //  collectorDriveS.setDirection(Servo.Direction.FORWARD);
             used = true;
         } else if (used == true) {
             collectorDriveS.setPosition(1);
-           // collectorDriveS.setDirection(Servo.Direction.REVERSE);
+            // collectorDriveS.setDirection(Servo.Direction.REVERSE);
             used = false;
         }
     }
@@ -742,9 +744,9 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             liftM.setTargetPosition(liftM.getCurrentPosition());
         }
         //arm tilt
-        if (gamepad1.left_stick_y > 0.25 && tiltM.getCurrentPosition() > -299) {
+        if (gamepad1.left_stick_y > 0.25 && tiltM.getCurrentPosition() > -543) {
             tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
-        } else if (gamepad1.left_stick_y < -0.25 && tiltM.getCurrentPosition() < 341) {
+        } else if (gamepad1.left_stick_y < -0.25 && tiltM.getCurrentPosition() < 6) {
             tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
         } else {
             tiltM.setTargetPosition(tiltM.getCurrentPosition());
@@ -761,3 +763,4 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
 
     }
 }
+
