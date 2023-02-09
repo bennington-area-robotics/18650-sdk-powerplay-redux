@@ -35,7 +35,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
     private Servo collectorTiltS;
     private Servo collectorDriveS;
 
-    static final float DPAD_POWER_LVL = 1.0F;
+    static final float DPAD_POWER_LVL = 0.5F;
     int armRotationPos ;
     int armExtendPos ;
     int armTiltPos;
@@ -451,7 +451,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
                 new String[] { "chip", "macaroon", "pizza"});
         tfod.initialize(vuforiaPOWERPLAY, (float) 0.7, true, true);
         tfod.activate();
-        tfod.setZoom(2.10, 16 / 9);
+        tfod.setZoom(2.25, 16 / 9);
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Press Play to start");
 
@@ -727,7 +727,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
             MoveToTargetPosition();
         } */
 
-        if (gamepad1.left_stick_button) {
+        if (gamepad1.x) {
             Collector();
         }
         if (gamepad1.right_bumper) {
@@ -744,18 +744,18 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
             liftM.setTargetPosition(liftM.getCurrentPosition());
         }
         //arm tilt
-        if (gamepad1.left_stick_y > 0.25 && tiltM.getCurrentPosition() > -543) {
+        if (gamepad1.left_stick_y > 0.1 && tiltM.getCurrentPosition() > -543) {
             tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
-        } else if (gamepad1.left_stick_y < -0.25 && tiltM.getCurrentPosition() < 6) {
+        } else if (gamepad1.left_stick_y < -0.1 && tiltM.getCurrentPosition() < 6) {
             tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
         } else {
             tiltM.setTargetPosition(tiltM.getCurrentPosition());
         }
         //arm rotate
-        if (gamepad1.left_stick_x > 0.25 && armRotationM.getCurrentPosition() < 68) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() + gamepad1.left_stick_x * armPower/2));
-        } else if (gamepad1.left_stick_x < -0.25 && armRotationM.getCurrentPosition() > -75) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() + gamepad1.left_stick_x * armPower/2));
+        if (gamepad1.left_stick_x > 0.1 && armRotationM.getCurrentPosition() > -75) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - gamepad1.left_stick_x * armPower/2));
+        } else if (gamepad1.left_stick_x < -0.1 && armRotationM.getCurrentPosition() < 68) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - gamepad1.left_stick_x * armPower/2));
         }
         else {
             armRotationM.setTargetPosition(armRotationM.getCurrentPosition());

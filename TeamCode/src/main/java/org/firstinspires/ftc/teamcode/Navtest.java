@@ -34,7 +34,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     private Servo collectorTiltS;
     private Servo collectorDriveS;
 
-    static final float DPAD_POWER_LVL = 1.0F;
+    static final float DPAD_POWER_LVL = 0.5F;
     int armRotationPos ;
     int armExtendPos ;
     int armTiltPos;
@@ -585,18 +585,18 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
 
     }
 
-    private void Collector () {
+    private void Collector (int direction) {
 
-        if (used == false) {
+        //if (used == false) {
 
-            collectorDriveS.setPosition(0);
+            collectorDriveS.setPosition(direction);
           //  collectorDriveS.setDirection(Servo.Direction.FORWARD);
             used = true;
-        } else if (used == true) {
-            collectorDriveS.setPosition(1);
+        //} else if (used == true) {
+            //collectorDriveS.setPosition(1);
            // collectorDriveS.setDirection(Servo.Direction.REVERSE);
             used = false;
-        }
+        //}
     }
 
     private void GoStraight() {
@@ -707,9 +707,9 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
 //        } else if (gamepad1.x) {
 //            collectorDriveS.setPosition(0);
 //            //Collector();
-        } else if (gamepad1.b) {
+        } /*else if (gamepad1.b) {
             Move_L_R(tileSizeSideways);
-        } else {
+        } */else {
 
             Set_Power_Values(0, 0, gamepad1.right_stick_x, gamepad2.right_stick_y, Current_Power_Lvl);
                     /*gamepad1.left_stick_x,
@@ -725,8 +725,12 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             MoveToTargetPosition();
         } */
 
-        if (gamepad1.left_stick_button) {
-            Collector();
+        if (gamepad1.x) {
+            Collector(1);
+            sleep(150);
+        } else if (gamepad1.b) {
+            Collector(0);
+            sleep(150);
         }
         if (gamepad1.right_bumper) {
             CollectorAngle(1);
@@ -734,26 +738,26 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             CollectorAngle(0);
         }
         //arm extension
-        if (gamepad1.left_trigger != 0 && liftM.getCurrentPosition() > -536) {
+        if (gamepad1.left_trigger != 0) {
             liftM.setTargetPosition((int) (liftM.getTargetPosition() - gamepad1.left_trigger * armPower));
-        } else if(gamepad1.right_trigger != 0 && liftM.getCurrentPosition() < 77) {
+        } else if(gamepad1.right_trigger != 0) {
             liftM.setTargetPosition((int) (liftM.getCurrentPosition() + gamepad1.right_trigger * armPower));
         } else {
             liftM.setTargetPosition(liftM.getCurrentPosition());
         }
         //arm tilt
-        if (gamepad1.left_stick_y > 0.25 && tiltM.getCurrentPosition() > -299) {
+        if (gamepad1.left_stick_y > 0.2 && tiltM.getCurrentPosition() > -543) {
             tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
-        } else if (gamepad1.left_stick_y < -0.25 && tiltM.getCurrentPosition() < 341) {
+        } else if (gamepad1.left_stick_y < -0.2 && tiltM.getCurrentPosition() < 300) {
             tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
         } else {
             tiltM.setTargetPosition(tiltM.getCurrentPosition());
         }
         //arm rotate
-        if (gamepad1.left_stick_x > 0.25 && armRotationM.getCurrentPosition() < 68) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() + gamepad1.left_stick_x * armPower/2));
-        } else if (gamepad1.left_stick_x < -0.25 && armRotationM.getCurrentPosition() > -75) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() + gamepad1.left_stick_x * armPower/2));
+        if (gamepad1.left_stick_x > 0.2 && armRotationM.getCurrentPosition() > -75) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - 0.2 * armPower/2));
+        } else if (gamepad1.left_stick_x < -0.2 && armRotationM.getCurrentPosition() < 68) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - 0.2 * armPower/2));
         }
         else {
             armRotationM.setTargetPosition(armRotationM.getCurrentPosition());
