@@ -34,7 +34,8 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     private Servo collectorTiltS;
     private Servo collectorDriveS;
 
-    static final float DPAD_POWER_LVL = 0.5F;
+    float DPAD_POWER_LVL = 0.5F;
+    boolean servoMoving;
     int armRotationPos ;
     int armExtendPos ;
     int armTiltPos;
@@ -47,7 +48,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     int differenceY;
     int parkingPosX = 1;
     int parkingPosY = 1;
-    double armPower = 3;
+    double armPower = 5;
     //array limits = new array[] {100, 100, 100, 100, 100, 100};
 
     boolean used = false;
@@ -407,18 +408,19 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         //tiltM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tiltM.setTargetPosition(tiltM.getCurrentPosition());
         tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        tiltM.setPower(1);
+        tiltM.setPower(0.4);
         liftM.setDirection(DcMotorSimple.Direction.FORWARD);
         liftM.setTargetPosition(liftM.getCurrentPosition());
         liftM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftM.setPower(1);
+        liftM.setPower(0.6);
         armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
         armRotationM.setTargetPosition(armRotationM.getCurrentPosition());
         armRotationM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armRotationM.setPower(0.7);
+        armRotationM.setPower(0.3);
 
         collectorDriveS.setPosition(1);
         collectorTiltS.setPosition(0);
+        servoMoving = false;
 
     }
 
@@ -481,12 +483,19 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
                 telemetry.addData("extend", liftM.getCurrentPosition());
                 telemetry.addData("collector", collectorDriveS.getPosition());
                 telemetry.update();
+                telemetry.addData("servoMoving", servoMoving);
                 SetPosition();
 
                 // Are the targets visible?
                 // (Note we only process first visible target).
 
                 Process_Movement();
+                if (servoMoving = true) {
+                    Adjust_Servo();
+                } else {
+                    CollectorAngle(1);
+
+                }
 
                 if (isTargetVisible("Red Audience Wall")) {
                     processTarget();
@@ -685,6 +694,11 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         RRear.setPower(values[3]);
     }
 
+    private void Adjust_Servo() {
+        collectorTiltS.setPosition((125 - (tiltM.getCurrentPosition() / 8) * 1.25) / 135);
+    }
+
+
     /**
      * Processes movement, old-style adapted from last year (2021-22
      */
@@ -702,14 +716,14 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             collectorDriveS.setPosition(1);
 //            telemetry.addData("Move_F_B",tileSizeForward);
 //            Move_F_B(tileSizeForward);
-        } */ else if (gamepad1.a) {
-            Move_F_B(-1 * tileSizeForward);
+        } */ //else if (gamepad1.a) {
+            //Move_F_B(-1 * tileSizeForward);
 //        } else if (gamepad1.x) {
 //            collectorDriveS.setPosition(0);
 //            //Collector();
-        } /*else if (gamepad1.b) {
-            Move_L_R(tileSizeSideways);
-        } */else {
+        //} /*else if (gamepad1.b) {
+            //Move_L_R(tileSizeSideways);
+        else {
 
             Set_Power_Values(0, 0, gamepad1.right_stick_x, gamepad2.right_stick_y, Current_Power_Lvl);
                     /*gamepad1.left_stick_x,
@@ -724,7 +738,14 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
         } else if (gamepad1.left_bumper) {
             MoveToTargetPosition();
         } */
-
+        if (gamepad1.a) {
+            DPAD_POWER_LVL = 0.25F;
+            Current_Power_Lvl = 0.25;
+        }
+        if (gamepad1.y) {
+            DPAD_POWER_LVL = 0.50F;
+            Current_Power_Lvl = 0.55F;
+        }
         if (gamepad1.x) {
             Collector(1);
             sleep(150);
@@ -733,31 +754,43 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             sleep(150);
         }
         if (gamepad1.right_bumper) {
-            CollectorAngle(1);
-        } else if (gamepad1.left_bumper) {
-            CollectorAngle(0);
+            servoMoving = true;
+            sleep(150);
+        }
+        if (gamepad1.left_bumper) {
+            servoMoving = false;
+            sleep(150);
+
         }
         //arm extension
         if (gamepad1.left_trigger != 0) {
             liftM.setTargetPosition((int) (liftM.getTargetPosition() - gamepad1.left_trigger * armPower));
         } else if(gamepad1.right_trigger != 0) {
-            liftM.setTargetPosition((int) (liftM.getCurrentPosition() + gamepad1.right_trigger * armPower));
+            liftM.setTargetPosition((int) (liftM.getCurrentPosition() + gamepad1.right_trigger * armPower * 2));
         } else {
             liftM.setTargetPosition(liftM.getCurrentPosition());
         }
         //arm tilt
-        if (gamepad1.left_stick_y > 0.2 && tiltM.getCurrentPosition() > -543) {
-            tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
-        } else if (gamepad1.left_stick_y < -0.2 && tiltM.getCurrentPosition() < 300) {
-            tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+        if (gamepad1.left_stick_y > 0.2 /*&& tiltM.getCurrentPosition() > -543*/) {
+            if (liftM.getTargetPosition() < -450) {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower/2));
+            } else {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+            }
+        } else if (gamepad1.left_stick_y < -0.2/* && tiltM.getCurrentPosition() < 300*/) {
+            if (liftM.getTargetPosition() < -450) {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower/2));
+            } else {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+            }
         } else {
             tiltM.setTargetPosition(tiltM.getCurrentPosition());
         }
         //arm rotate
-        if (gamepad1.left_stick_x > 0.2 && armRotationM.getCurrentPosition() > -75) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - 0.2 * armPower/2));
-        } else if (gamepad1.left_stick_x < -0.2 && armRotationM.getCurrentPosition() < 68) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - 0.2 * armPower/2));
+        if (gamepad1.left_stick_x > 0.2 /*&& armRotationM.getCurrentPosition() > -75*/) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - 0.2 * armPower));
+        } else if (gamepad1.left_stick_x < -0.2 /*&& armRotationM.getCurrentPosition() < 68*/) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() + 0.2 * armPower));
         }
         else {
             armRotationM.setTargetPosition(armRotationM.getCurrentPosition());

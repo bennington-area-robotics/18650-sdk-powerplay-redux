@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -25,6 +27,8 @@ public class Sam extends LinearOpMode {
     private DcMotor RFront;
     private DcMotor LRear;
     private DcMotor RRear;
+    private DcMotor corehex;
+    private Servo servo;
     double speed = .3;
     double stop = 0;
     double bad_speed = speed * -1;

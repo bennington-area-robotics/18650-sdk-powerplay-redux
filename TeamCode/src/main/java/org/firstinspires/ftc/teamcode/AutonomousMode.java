@@ -92,7 +92,8 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         } else {
             SignalNumber = 0;
         }
-        RunToSignal(SignalNumber);
+        telemetry.addData("signal", signal);
+
 
     }
     private void RunToSignal (int signal) {
@@ -464,6 +465,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         telemetry.addData("turntable", armRotationM.getCurrentPosition());
         telemetry.addData("tilt", tiltM.getCurrentPosition());
         telemetry.addData("extend", liftM.getCurrentPosition());
+        Detection();
         telemetry.update();
         ResetValues();
         if (gamepad1.a) {
@@ -472,6 +474,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         waitForStart();
         if (opModeIsActive()) {
             Detection();
+            RunToSignal(SignalNumber);
             armRotationPos = armRotationM.getCurrentPosition();
             armExtendPos = liftM.getCurrentPosition();
             armTiltPos = tiltM.getCurrentPosition();
