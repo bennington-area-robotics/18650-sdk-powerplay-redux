@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -18,11 +16,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.Tfod;
 
-import java.security.cert.Extension;
 import java.util.List;
 
-@TeleOp(name = "driverControlMode")
-public class Navtest extends LinearOpMode { //asdfgndsadfgn
+@TeleOp(name = "sillycontrolmode")
+public class Navtest2 extends LinearOpMode { //asdfgndsadfgn
 
     private DcMotor LFront;
     private DcMotor RFront;
@@ -53,7 +50,8 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
 
     boolean used = false;
 
-
+    double collectorTiltPos = 0;
+    double collectorTiltIncrement = 0.04;
 
     //private int detected = 1;
     //int h = 0;
@@ -509,20 +507,25 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
                 telemetry.addData("extend", liftM.getCurrentPosition());
                 telemetry.addData("collector", collectorDriveS.getPosition());
                 telemetry.addData("collectorTilt", collectorTiltS.getPosition());
-                telemetry.update();
+                telemetry.addData("collectorTargetPos", collectorTiltPos);
                 telemetry.addData("servoMoving", servoMoving);
+                telemetry.addData("increment #", collectorTiltIncrement);
+                telemetry.update();
+
                 SetPosition();
 
                 // Are the targets visible?
                 // (Note we only process first visible target).
 
                 Process_Movement();
-                if (servoMoving = true) {
+                /*if (servoMoving = true) {
                     Adjust_Servo();
                 } else {
                     CollectorAngle(1);
 
-                }
+                }*/
+                collectorTiltS.setPosition(collectorTiltPos);
+
 
                 if (isTargetVisible("Red Audience Wall")) {
                     processTarget();
@@ -722,8 +725,7 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
     }
 
     private void Adjust_Servo() {
-        //collectorTiltS.setPosition((125 - ((tiltM.getCurrentPosition() +49 )/ 8) * 1.25) / 145);
-        collectorTiltS.setPosition((-0.000825684 * tiltM.getCurrentPosition())+0.772797);
+        collectorTiltS.setPosition((125 - ((tiltM.getCurrentPosition() +49 )/ 8) * 1.25) / 145);
     }
 
 
@@ -767,22 +769,26 @@ public class Navtest extends LinearOpMode { //asdfgndsadfgn
             MoveToTargetPosition();
         } */
         if (gamepad1.a) {
-            DPAD_POWER_LVL = 0.1F;
-            Current_Power_Lvl = 0.11;
+            //DPAD_POWER_LVL = 0.25F;
+            //Current_Power_Lvl = 0.25;
+            collectorTiltPos -= collectorTiltIncrement;
+            collectorTiltS.setPosition(collectorTiltPos);
+            sleep(200);
         }
         if (gamepad1.y) {
-            DPAD_POWER_LVL = 0.50F;
-            Current_Power_Lvl = 0.55F;
+            collectorTiltPos += collectorTiltIncrement;
+            collectorTiltS.setPosition(collectorTiltPos);
+            sleep(200);
         }
         if (gamepad1.x) {
-            Collector(1);
-            sleep(150);
+            collectorTiltIncrement += 0.01;
+            sleep(200);
         } else if (gamepad1.b) {
-            Collector(0);
-            sleep(150);
+            collectorTiltIncrement -= 0.01;
+            sleep(200);
         }
         if (gamepad1.right_bumper) {
-            servoMoving = true;
+            //servoMoving = true;
             sleep(150);
         }
         if (gamepad1.left_bumper) {
