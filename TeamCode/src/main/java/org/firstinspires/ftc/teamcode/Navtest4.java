@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.ams.AMSColorSensor;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -19,11 +16,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.Tfod;
 
-import java.security.cert.Extension;
 import java.util.List;
 
-@Autonomous(name = "autonomousMode")
-public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
+@TeleOp(name = "littlerMan")
+public class Navtest4 extends LinearOpMode { //asdfgndsadfgn
 
     private DcMotor LFront;
     private DcMotor RFront;
@@ -32,10 +28,11 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
     private DcMotor armRotationM;
     private DcMotor liftM;
     private DcMotor tiltM;
-    private Servo collectorTiltS;
+    private DcMotor collectorTiltS;
     private Servo collectorDriveS;
 
-    static final float DPAD_POWER_LVL = 0.5F;
+    float DPAD_POWER_LVL = 0.5F;
+    boolean collectorArmMoving;
     int armRotationPos ;
     int armExtendPos ;
     int armTiltPos;
@@ -48,7 +45,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
     int differenceY;
     int parkingPosX = 1;
     int parkingPosY = 1;
-    double armPower = 3;
+    double armPower = 5;
     //array limits = new array[] {100, 100, 100, 100, 100, 100};
 
     boolean used = false;
@@ -63,7 +60,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
 
     /** tile size in inches */
     final private int tileSizeForward = 800;
-    final private int tileSizeSideways = 1100;
+    final private int tileSizeSideways = 1075;
 
     int SignalNumber;
     Recognition recognition;
@@ -79,7 +76,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
      * Autonomous Parking
      */
 
-    /* void ParkingLocation (String signal) {
+    private void ParkingLocation (String signal) {
         if(signal == "chip") {
             telemetry.addData(" parking location:", 1);
             SignalNumber = 1;
@@ -92,25 +89,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         } else {
             SignalNumber = 0;
         }
-        telemetry.addData("signal", signal);
-
-
-    }*/
-    private void ParkingLocation (String signal) {
-        if(signal == "1 Bolt") {
-            telemetry.addData(" parking location:", 1);
-            SignalNumber = 1;
-        } else if(signal == "2 Bulb") {
-            telemetry.addData(" parking location:", 2);
-            SignalNumber = 2;
-        } else if(signal == "3 Panel") {
-            telemetry.addData(" parking location:", 3);
-            SignalNumber = 3;
-        } else {
-            SignalNumber = 0;
-        }
-        telemetry.addData("signal", signal);
-
+        RunToSignal(SignalNumber);
 
     }
     private void RunToSignal (int signal) {
@@ -161,7 +140,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         LRear.setPower(Current_Power_Lvl);
     }
     private void Move_L_R(double dist_L_R) {
-        LFront.setTargetPosition((int)-dist_L_R);
+        LFront.setTargetPosition((int) -dist_L_R);
         RFront.setTargetPosition((int) -dist_L_R);
         LRear.setTargetPosition((int) -dist_L_R);
         RRear.setTargetPosition((int) dist_L_R);
@@ -192,6 +171,28 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         Config_Drive_to_Manual();
 
     }
+    private void tiltTop (double tiltPos) {
+        tiltM.setTargetPosition((int) tiltPos);
+
+
+        Wait_for_Arm_Motors_to_Move();
+
+
+    }
+    private void Wait_for_Arm_Motors_to_Move() {
+        while (
+                !(Number_Within_Range_(tiltM.getCurrentPosition(),
+                        tiltM.getTargetPosition() - ((DcMotorEx) tiltM).getTargetPositionTolerance(),
+                        tiltM.getTargetPosition() + ((DcMotorEx) tiltM).getTargetPositionTolerance())))
+         {
+            //Update_Telemetry();
+            if (Is_opmode_stopped_()) {
+                break;
+            }
+        }
+    }
+
+
     private boolean Number_Within_Range_(double Num, int Min, int Max) {
         return Num == Math.min(Math.max(Num, Min), Max);
     }
@@ -286,25 +287,25 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
 
     }
     /**private void MoveForSignal () {
-     Detection();
-     if (h == 0) {
-     Move_L_R(1);
-     h++;
-     Detection();
-     } else {
-     Move_L_R(-1);
-     h--;
-     }
-     }
-     private void ScanForSignal () {
-     while (true) {
-     if (MoveToSpot == false) {
-     MoveForSignal();
-     } else {
-     return;
-     }
-     }
-     }*/
+        Detection();
+        if (h == 0) {
+            Move_L_R(1);
+            h++;
+            Detection();
+        } else {
+            Move_L_R(-1);
+            h--;
+        }
+    }
+    private void ScanForSignal () {
+        while (true) {
+            if (MoveToSpot == false) {
+                MoveForSignal();
+            } else {
+                return;
+            }
+        }
+    }*/
 
     /**
      * Initialization for target locations
@@ -406,7 +407,7 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
     }
 
     private void SetPosition () {
-        //tiltM.setTargetPosition(75);
+        //armRotationM.setTargetPosition(15);
 
 
 
@@ -416,6 +417,10 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         LRear.setDirection(DcMotorSimple.Direction.FORWARD);
         RFront.setDirection(DcMotorSimple.Direction.FORWARD);
         RRear.setDirection(DcMotorSimple.Direction.FORWARD);
+        tiltM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armRotationM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //LRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         LFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         LRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -426,18 +431,25 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         //tiltM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tiltM.setTargetPosition(tiltM.getCurrentPosition());
         tiltM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        tiltM.setPower(1);
+        tiltM.setPower(0.4);
         liftM.setDirection(DcMotorSimple.Direction.FORWARD);
         liftM.setTargetPosition(liftM.getCurrentPosition());
         liftM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftM.setPower(1);
+        liftM.setPower(0.6);
         armRotationM.setDirection(DcMotorSimple.Direction.FORWARD);
         armRotationM.setTargetPosition(armRotationM.getCurrentPosition());
         armRotationM.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armRotationM.setPower(0.7);
+        armRotationM.setPower(0.15);
 
-        collectorDriveS.setPosition(1);
-        collectorTiltS.setPosition(0);
+        collectorDriveS.setPosition(0);
+        collectorTiltS.setDirection(DcMotorSimple.Direction.FORWARD);
+        //collectorTiltS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition());
+        collectorTiltS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        collectorTiltS.setPower(0.15);
+        collectorArmMoving = true;
+
+
 
     }
 
@@ -455,22 +467,22 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         liftM = hardwareMap.get(DcMotor.class, "liftM");
         tiltM = hardwareMap.get(DcMotor.class, "tiltM");
 
-        collectorTiltS = hardwareMap.get(Servo.class, "collectorTiltS");
+        collectorTiltS = hardwareMap.get(DcMotor.class, "collectorAngleM");
         collectorDriveS = hardwareMap.get(Servo.class, "collectorDriveS");
 
-        //Initialize_Motors_Servos();
+        Initialize_Motors_Servos();
 
         // Initialize Vuforia
         telemetry.addData("Status", "Initializing Vuforia. Please wait...");
         telemetry.update();
         initVuforia();
-        tfod.useDefaultModel();
-        /*tfod.useModelFromAsset(
+
+        tfod.useModelFromAsset(
                 "model_new_style.tflite",
-                new String[] { "chip", "macaroon", "pizza"});*/
+                new String[] { "chip", "macaroon", "pizza"});
         tfod.initialize(vuforiaPOWERPLAY, (float) 0.7, true, true);
         tfod.activate();
-        tfod.setZoom(2.25, 16 / 9);
+        tfod.setZoom(2.10, 16 / 9);
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Press Play to start");
 
@@ -483,7 +495,6 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         telemetry.addData("turntable", armRotationM.getCurrentPosition());
         telemetry.addData("tilt", tiltM.getCurrentPosition());
         telemetry.addData("extend", liftM.getCurrentPosition());
-        Detection();
         telemetry.update();
         ResetValues();
         if (gamepad1.a) {
@@ -491,8 +502,6 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         }
         waitForStart();
         if (opModeIsActive()) {
-            Detection();
-            RunToSignal(SignalNumber);
             armRotationPos = armRotationM.getCurrentPosition();
             armExtendPos = liftM.getCurrentPosition();
             armTiltPos = tiltM.getCurrentPosition();
@@ -503,13 +512,20 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
                 telemetry.addData("tilt", tiltM.getCurrentPosition());
                 telemetry.addData("extend", liftM.getCurrentPosition());
                 telemetry.addData("collector", collectorDriveS.getPosition());
+                telemetry.addData("collectorTilt", collectorTiltS.getCurrentPosition());
+                telemetry.addData("servoMoving", collectorArmMoving);
                 telemetry.update();
                 SetPosition();
 
                 // Are the targets visible?
                 // (Note we only process first visible target).
-
+                if (tiltM.getTargetPosition() > 35) {
+                    SetPosition();
+                }
                 Process_Movement();
+                if (collectorArmMoving == true) {
+                    Adjust_Servo();
+                }
 
                 if (isTargetVisible("Red Audience Wall")) {
                     processTarget();
@@ -603,23 +619,23 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
      * Movement Functions
      */
     private void CollectorAngle (double direction) {
-        collectorTiltS.setPosition(direction);
+        //collectorTiltS.setPosition(direction);
 
 
     }
 
-    private void Collector () {
+    private void Collector (int direction) {
 
-        if (used == false) {
+        //if (used == false) {
 
-            collectorDriveS.setPosition(0);
-            //  collectorDriveS.setDirection(Servo.Direction.FORWARD);
+            collectorDriveS.setPosition(direction);
+          //  collectorDriveS.setDirection(Servo.Direction.FORWARD);
             used = true;
-        } else if (used == true) {
-            collectorDriveS.setPosition(1);
-            // collectorDriveS.setDirection(Servo.Direction.REVERSE);
+        //} else if (used == true) {
+            //collectorDriveS.setPosition(1);
+           // collectorDriveS.setDirection(Servo.Direction.REVERSE);
             used = false;
-        }
+        //}
     }
 
     private void GoStraight() {
@@ -708,6 +724,12 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         RRear.setPower(values[3]);
     }
 
+    private void Adjust_Servo() {
+        //collectorTiltS.setPosition((125 - ((tiltM.getCurrentPosition() +49 )/ 8) * 1.25) / 145);
+        //collectorTiltS.setPosition((-0.000825684 * tiltM.getCurrentPosition())+0.772797);
+    }
+
+
     /**
      * Processes movement, old-style adapted from last year (2021-22
      */
@@ -725,14 +747,14 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
             collectorDriveS.setPosition(1);
 //            telemetry.addData("Move_F_B",tileSizeForward);
 //            Move_F_B(tileSizeForward);
-        } */ else if (gamepad1.a) {
-            Move_F_B(-1 * tileSizeForward);
+        } */ //else if (gamepad1.a) {
+            //Move_F_B(-1 * tileSizeForward);
 //        } else if (gamepad1.x) {
 //            collectorDriveS.setPosition(0);
 //            //Collector();
-        } else if (gamepad1.b) {
-            Move_L_R(tileSizeSideways);
-        } else {
+        //} /*else if (gamepad1.b) {
+            //Move_L_R(tileSizeSideways);
+        else {
 
             Set_Power_Values(0, 0, gamepad1.right_stick_x, gamepad2.right_stick_y, Current_Power_Lvl);
                     /*gamepad1.left_stick_x,
@@ -747,41 +769,82 @@ public class AutonomousMode extends LinearOpMode { //asdfgndsadfgn
         } else if (gamepad1.left_bumper) {
             MoveToTargetPosition();
         } */
-
+        if (gamepad1.a) {
+            DPAD_POWER_LVL = 0.2F;
+            Current_Power_Lvl = 0.22;
+        }
+        if (gamepad1.y) {
+            DPAD_POWER_LVL = 0.50F;
+            Current_Power_Lvl = 0.55F;
+        }
         if (gamepad1.x) {
-            Collector();
+            Collector(1);
+            sleep(150);
+        } else if (gamepad1.b) {
+            Collector(0);
+            sleep(150);
         }
-        if (gamepad1.right_bumper) {
-            CollectorAngle(1);
-        } else if (gamepad1.left_bumper) {
-            CollectorAngle(0);
+        if (gamepad1.left_stick_button && collectorArmMoving == true) {
+            collectorArmMoving = false;
+            sleep(150);
+        } else if (gamepad1.left_stick_button && collectorArmMoving == false) {
+            collectorArmMoving = true;
+            sleep(150);
         }
+        if (collectorArmMoving == false) {
+            if (gamepad1.left_bumper) {
+                collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition() + 1);
+            }
+            if (gamepad1.right_bumper) {
+                collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition() - 1);
+            }
+        }
+        /*if (gamepad1.left_bumper && servoMoving == false) {
+            collectorTiltS.setPosition(collectorTiltS.getPosition() + 0.1);
+        }
+        if (gamepad1.right_bumper && servoMoving == false) {
+            collectorTiltS.setPosition(collectorTiltS.getPosition() - 0.1);
+        }*/
+        /*if (gamepad1.left_bumper) {
+            tiltTop(380);
+
+        }*/
         //arm extension
-        if (gamepad1.left_trigger != 0 && liftM.getCurrentPosition() > -536) {
-            liftM.setTargetPosition((int) (liftM.getTargetPosition() - gamepad1.left_trigger * armPower));
-        } else if(gamepad1.right_trigger != 0 && liftM.getCurrentPosition() < 77) {
-            liftM.setTargetPosition((int) (liftM.getCurrentPosition() + gamepad1.right_trigger * armPower));
+        if (gamepad1.left_trigger != 0) {
+            liftM.setTargetPosition((int) (liftM.getTargetPosition() + gamepad1.left_trigger * armPower * 1.5));
+        } else if(gamepad1.right_trigger != 0) {
+            liftM.setTargetPosition((int) (liftM.getCurrentPosition() - gamepad1.right_trigger * armPower * 2));
         } else {
             liftM.setTargetPosition(liftM.getCurrentPosition());
         }
         //arm tilt
-        if (gamepad1.left_stick_y > 0.1 && tiltM.getCurrentPosition() > -543) {
-            tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
-        } else if (gamepad1.left_stick_y < -0.1 && tiltM.getCurrentPosition() < 6) {
-            tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+        if (gamepad1.left_stick_y > 0.2)  {
+            if (liftM.getTargetPosition() < -450) {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower/2));
+            } else {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+            }
+//        } else {
+//            tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower/2));
+        }
+        else if (gamepad1.left_stick_y < -0.2 && tiltM.getCurrentPosition() < 420) {
+            if (liftM.getTargetPosition() < -450) {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower/2));
+            } else {
+                tiltM.setTargetPosition((int) (tiltM.getTargetPosition() - gamepad1.left_stick_y * armPower));
+            }
         } else {
             tiltM.setTargetPosition(tiltM.getCurrentPosition());
         }
         //arm rotate
-        if (gamepad1.left_stick_x > 0.1 && armRotationM.getCurrentPosition() > -75) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - gamepad1.left_stick_x * armPower/2));
-        } else if (gamepad1.left_stick_x < -0.1 && armRotationM.getCurrentPosition() < 68) {
-            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - gamepad1.left_stick_x * armPower/2));
+        /*if (gamepad1.left_stick_x > 0.25 /*&& armRotationM.getCurrentPosition() > -75) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() - 0.2 * armPower * 0.75));
+        } else if (gamepad1.left_stick_x < -0.25 /*&& armRotationM.getCurrentPosition() < 68) {
+            armRotationM.setTargetPosition((int) (armRotationM.getTargetPosition() + 0.2 * armPower * 0.75));
         }
         else {
             armRotationM.setTargetPosition(armRotationM.getCurrentPosition());
-        }
+        }*/
 
     }
 }
-
