@@ -81,13 +81,13 @@ public class Navtest5 extends LinearOpMode {
      */
 
     private void ParkingLocation (String signal) {
-        if(signal == "chip") {
+        if(signal.equals("chip")) {
             telemetry.addData(" parking location:", 1);
             SignalNumber = 1;
-        } else if(signal == "macaroon") {
+        } else if(signal.equals("macaroon")) {
             telemetry.addData(" parking location:", 2);
             SignalNumber = 2;
-        } else if(signal == "pizza") {
+        } else if(signal.equals("pizza")) {
             telemetry.addData(" parking location:", 3);
             SignalNumber = 3;
         } else {
