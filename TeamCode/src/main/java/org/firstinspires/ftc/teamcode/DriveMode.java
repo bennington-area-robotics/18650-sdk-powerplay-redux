@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Tfod;
 import java.util.List;
 
 @TeleOp(name = "littlerMan")
-public class Navtest4 extends LinearOpMode { //asdfgndsadfgn
+public class DriveMode extends LinearOpMode { //asdfgndsadfgn
 
     private DcMotor LFront;
     private DcMotor RFront;
@@ -420,6 +420,7 @@ public class Navtest4 extends LinearOpMode { //asdfgndsadfgn
         tiltM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armRotationM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        collectorTiltS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //LRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         LFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -446,8 +447,8 @@ public class Navtest4 extends LinearOpMode { //asdfgndsadfgn
         //collectorTiltS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition());
         collectorTiltS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        collectorTiltS.setPower(0.15);
-        collectorArmMoving = true;
+        collectorTiltS.setPower(0.3);
+        collectorArmMoving = false;
 
 
 
@@ -727,6 +728,8 @@ public class Navtest4 extends LinearOpMode { //asdfgndsadfgn
     private void Adjust_Servo() {
         //collectorTiltS.setPosition((125 - ((tiltM.getCurrentPosition() +49 )/ 8) * 1.25) / 145);
         //collectorTiltS.setPosition((-0.000825684 * tiltM.getCurrentPosition())+0.772797);
+        //collectorTiltS.setTargetPosition( (int) ((0.137872 * tiltM.getCurrentPosition()) - 116.833));
+        collectorTiltS.setTargetPosition( (int) ((0.137872 * tiltM.getCurrentPosition()) - 116.833));
     }
 
 
@@ -793,22 +796,13 @@ public class Navtest4 extends LinearOpMode { //asdfgndsadfgn
         }
         if (collectorArmMoving == false) {
             if (gamepad1.left_bumper) {
-                collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition() + 1);
+                collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition() + 5);
             }
             if (gamepad1.right_bumper) {
-                collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition() - 1);
+                collectorTiltS.setTargetPosition(collectorTiltS.getCurrentPosition() - 10);
             }
         }
-        /*if (gamepad1.left_bumper && servoMoving == false) {
-            collectorTiltS.setPosition(collectorTiltS.getPosition() + 0.1);
-        }
-        if (gamepad1.right_bumper && servoMoving == false) {
-            collectorTiltS.setPosition(collectorTiltS.getPosition() - 0.1);
-        }*/
-        /*if (gamepad1.left_bumper) {
-            tiltTop(380);
 
-        }*/
         //arm extension
         if (gamepad1.left_trigger != 0) {
             liftM.setTargetPosition((int) (liftM.getTargetPosition() + gamepad1.left_trigger * armPower * 1.5));
